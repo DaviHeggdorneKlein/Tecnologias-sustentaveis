@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciamento de Usuários</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      input[type="text"],
+      input[type="email"] {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Gerenciamento de Usuários</h1>
+
+    <form id="user-form">
+      <input type="text" id="nome" placeholder="Nome" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <button type="submit">Adicionar Usuário</button>
+    </form>
+
+    <h2>Lista de Usuários</h2>
+    <table id="user-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("user-form");
+        const userTable = document
+          .getElementById("user-table")
+          .getElementsByTagName("tbody")[0];
+
+        const fetchUsers = async () => {
+          try {
+            const response = await fetch("/usuarios");
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const users = await response.json();
+            userTable.innerHTML = "";
+            users.forEach((user) => {
+              const row = userTable.insertRow();
+              row.insertCell(0).textContent = user.nome;
+              row.insertCell(1).textContent = user.email;
+            });
+          } catch (error) {
+            console.error("Erro ao buscar usuários:", error);
+          }
+        };
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const nome = document.getElementById("nome").value;
+          const email = document.getElementById("email").value;
+
+          try {
+            const response = await fetch("/usuarios", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ nome, email }),
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            form.reset();
+            fetchUsers();
+          } catch (error) {
+            console.error("Erro ao adicionar usuário:", error);
+          }
+        });
+        fetchUsers();
+      });
+    </script>
+  </body>
+</html>
