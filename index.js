@@ -1,6 +1,6 @@
 require("dotenv").config();
 const db = require("./db.js");
-const port = process.env.PORT;
+const port = "8080";
 const express = require("express");
 const path = require("path");
 const app = express();
